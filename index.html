@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="Aventura Musical — Quiz de teoria musical em trilhas">
+  <title>Aventura Musical</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap"
+    rel="stylesheet"
+  >
+  <link rel="stylesheet" href="styles.css">
+  <script rel="app.js"></script>
+</head>
+<body>
+
+  <!-- ── UTILITÁRIOS GLOBAIS ── -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="confetti-wrap" id="confetti" aria-hidden="true"></div>
+
+  <!-- ════════════════════════════════════════════════
+       TELA 1 — ESCOLHA DO CAMINHO
+  ════════════════════════════════════════════════ -->
+  <div class="screen" id="s-path" role="main">
+    <div class="path-header">
+      <div class="logo">Aventura Musical</div>
+      <div class="path-title">
+        <span>Qual é o seu</span>
+        <span class="accent">caminho?</span>
+      </div>
+      <div class="path-sub">Escolha uma trilha para começar sua jornada musical</div>
+    </div>
+
+    <div class="path-cards">
+      <div class="path-card harm" onclick="selectPath('harmonia')" role="button" tabindex="0" aria-label="Trilha de Harmonia">
+        <div class="pc-icon" aria-hidden="true">🎼</div>
+        <div class="pc-body">
+          <div class="pc-name">Harmonia</div>
+          <div class="pc-desc">Notas, escalas, acordes e teoria musical. O mapa completo do som.</div>
+          <div class="pc-levels">5 níveis disponíveis</div>
+        </div>
+      </div>
+
+      <div class="path-card rhy" onclick="selectPath('ritmo')" role="button" tabindex="0" aria-label="Trilha de Ritmo">
+        <div class="pc-icon" aria-hidden="true">🥁</div>
+        <div class="pc-body">
+          <div class="pc-name">Ritmo</div>
+          <div class="pc-desc">Compasso, figuras, partituras e grooves. O motor de toda música.</div>
+          <div class="pc-levels">4 níveis disponíveis</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════
+       TELA 2 — TRILHA
+  ════════════════════════════════════════════════ -->
+  <div class="screen hidden" id="s-trail">
+
+    <div class="trail-topbar">
+      <div class="trail-back-btn" id="trail-back" role="button" tabindex="0" aria-label="Voltar para seleção de trilha">←</div>
+
+      <div class="trail-path-badge">
+        <div class="tpb-dot" id="tpb-dot"></div>
+        <div class="tpb-name" id="tpb-name"></div>
+      </div>
+
+      <div class="trail-icon-btns">
+        <div class="tib" onclick="openProfile()" role="button" tabindex="0" aria-label="Abrir perfil">👤</div>
+        <div class="tib" onclick="openAchievements()" role="button" tabindex="0" aria-label="Abrir conquistas">🏆</div>
+      </div>
+    </div>
+
+    <div class="trail-scroll" role="main">
+      <div class="trail-inner" id="trail-inner"></div>
+    </div>
+
+  </div>
+
+  <!-- ════════════════════════════════════════════════
+       TELA 3 — QUIZ
+  ════════════════════════════════════════════════ -->
+  <div class="screen hidden" id="s-quiz">
+    <div class="quiz-wrap" id="quiz-wrap">
+
+      <!-- Topbar do quiz -->
+      <div class="quiz-top">
+        <div class="quiz-x-btn" id="quiz-x" role="button" tabindex="0" aria-label="Sair do quiz">✕</div>
+        <div class="quiz-lv-info">
+          <div class="quiz-lv-badge" id="qlv-badge"></div>
+          <div class="quiz-lv-name"  id="qlv-name"></div>
+        </div>
+        <div class="quiz-combo-badge none" id="combo-badge" aria-live="polite">
+          🔥 <span id="combo-num">0</span>x
+        </div>
+      </div>
+
+      <!-- Barra de progresso do nível -->
+      <div class="quiz-pbar-wrap">
+        <div class="quiz-pbar-bg">
+          <div class="quiz-pbar-fill" id="quiz-pbar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+        </div>
+        <div class="quiz-pstat">
+          <span id="quiz-pstat">0/0 corretas</span>
+          <span id="quiz-xp-sess" style="color:var(--gold)"></span>
+        </div>
+      </div>
+
+      <!-- Card da questão -->
+      <div class="quiz-card" id="quiz-card">
+        <div class="quiz-card-top">
+          <div class="quiz-q-label" id="qq-label">Questão 1</div>
+          <div class="stars-earned" id="stars-earned-row" aria-label="Estrelas que você ganhará"></div>
+        </div>
+
+        <div class="quiz-q-text" id="qq-text"></div>
+
+        <div class="quiz-card-bottom">
+          <div class="hint-btn" id="hint-btn" onclick="useHint()" role="button" tabindex="0" aria-label="Ver dica (zera combo)">💡 Dica</div>
+        </div>
+
+        <div class="hint-box" id="hint-box" role="note"></div>
+      </div>
+
+      <!-- Opções de resposta -->
+      <div class="quiz-opts" id="quiz-opts" role="group" aria-label="Opções de resposta"></div>
+
+      <!-- Feedback -->
+      <div class="quiz-fb" id="quiz-fb" role="status" aria-live="polite">
+        <div class="fb-ico" id="fb-ico"></div>
+        <div class="fb-body">
+          <div class="fb-title" id="fb-title"></div>
+          <div class="fb-exp"   id="fb-exp"></div>
+        </div>
+      </div>
+
+      <!-- Botão próxima -->
+      <button class="quiz-next" id="quiz-next" type="button">Próxima →</button>
+
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════
+       TELA 4 — NÍVEL CONCLUÍDO
+  ════════════════════════════════════════════════ -->
+  <div class="screen hidden" id="s-complete">
+    <div class="comp-card" id="comp-card">
+      <span class="comp-big-emoji" id="comp-emoji" aria-hidden="true">⭐</span>
+      <div class="comp-title"     id="comp-title">Nível Concluído!</div>
+      <div class="comp-sub"       id="comp-sub"></div>
+
+      <div class="comp-stars-row" id="comp-stars" aria-label="Estrelas conquistadas"></div>
+
+      <div class="comp-stats">
+        <div class="cs">
+          <div class="cs-v g" id="cs-acertos">0</div>
+          <div class="cs-l">Acertos</div>
+        </div>
+        <div class="cs">
+          <div class="cs-v p" id="cs-xp">0</div>
+          <div class="cs-l">XP Ganho</div>
+        </div>
+        <div class="cs">
+          <div class="cs-v o" id="cs-combo">0x</div>
+          <div class="cs-l">Combo Máx</div>
+        </div>
+      </div>
+
+      <button class="comp-btn" id="comp-next" type="button">Próximo Nível →</button>
+      <button class="comp-btn sec" id="comp-trail-btn" type="button">Ver Trilha</button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════
+       MODAL — PERFIL
+  ════════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal-profile" role="dialog" aria-modal="true" aria-label="Meu Perfil">
+    <div class="modal-sheet">
+      <div class="modal-handle" aria-hidden="true"></div>
+
+      <div class="modal-title">
+        Meu Perfil
+        <div class="modal-close" onclick="closeModal('modal-profile')" role="button" tabindex="0" aria-label="Fechar perfil">✕</div>
+      </div>
+
+      <!-- Header do perfil -->
+      <div class="profile-header">
+        <div class="profile-avatar" id="prof-avatar" aria-hidden="true"></div>
+        <div class="profile-name-wrap">
+          <div class="profile-path-name"  id="prof-path-name"></div>
+          <div class="profile-level-name" id="prof-level-name"></div>
+          <div class="profile-xp-row">
+            <div class="profile-xp-bar-bg">
+              <div class="profile-xp-bar-fill" id="prof-xp-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <div class="profile-xp-txt" id="prof-xp-txt"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats grid -->
+      <div class="prof-grid" id="prof-grid"></div>
+
+      <!-- Conquistas recentes -->
+      <div class="prof-section-title">Conquistas Recentes</div>
+      <div class="ach-grid" id="prof-ach-grid"></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════
+       MODAL — MURAL DE CONQUISTAS
+  ════════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal-ach" role="dialog" aria-modal="true" aria-label="Mural de Conquistas">
+    <div class="modal-sheet">
+      <div class="modal-handle" aria-hidden="true"></div>
+
+      <div class="modal-title">
+        Mural de Conquistas
+        <div class="modal-close" onclick="closeModal('modal-ach')" role="button" tabindex="0" aria-label="Fechar conquistas">✕</div>
+      </div>
+
+      <div class="ach-grid" id="ach-full-grid"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
